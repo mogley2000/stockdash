@@ -6,9 +6,32 @@ from flask import Flask, render_template, request, jsonify, send_file # Flask is
 import yfinance as yf
 from matplotlib import pyplot as plt
 from matplotlib.figure import Figure # Import Figure Class 
-from plot import get_closing_prices, plot_graph # Must important functions from another module. 
+from plot import get_closing_prices, plot_graph, small_plot # Must important functions from another module. 
                                                 # App module is for routing only 
 from io import BytesIO
+
+#yFinance 
+def get_closing_prices(symbol, period, interval):
+    """ Pull data from yf"""
+    quote = yf.Ticker(symbol)
+    hist = quote.history(period, interval)
+    return hist["Close"].round(decimals=2)
+
+
+def performance(stock_ticker, stock_period, stock_interval): 
+    """Generate percentage return over stock_period
+    """
+    # Call yfinance
+    data = get_closing_prices(stock_ticker, stock_period, stock_interval) 
+    
+    # Format performance label based on +ve or -ve 
+    performance_calc = ((data[-1] / data[0]) - 1) * 100
+    if performance_calc >= 0:
+        performance = '+' + str(round(performance_calc,2))
+    else:
+        performance = str(round(performance_calc,2))
+
+    return performance
 
 
 # Instantiate Class by assigning Flask to a variable 
@@ -38,6 +61,21 @@ def home():
             stock_period_default_expanded = v
 
     return render_template("home.html", stock_period_default_expanded=stock_period_default_expanded)
+
+@app.route('/threecols')
+def threecols():
+    NVDA_perf = performance('NVDA', stock_period_default, stock_interval_default)
+
+    return render_template("threecols.html", NVDA_perf=NVDA_perf)
+
+
+@app.route('/index2')
+def index2():
+    return render_template("index2.html")
+
+@app.route('/index3')
+def index3():
+    return render_template("index3.html")
 
 
 # Plot defaults 
@@ -163,6 +201,11 @@ def plot_graph_XRO():
 @app.route('/plot_graph_PDN')
 def plot_graph_PDN():
     return plot_graph('PDN.AX', stock_period_default, stock_interval_default)
+
+# Small plots
+@app.route('/small_plot_NVDA')
+def small_plot_NVDA():
+    return small_plot('NVDA', stock_period_default, stock_interval_default)
 
 
 # Launch flask

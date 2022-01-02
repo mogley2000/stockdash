@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+* {
+  box-sizing: border-box;
+  
+}
+html, body {
+    height: 100%;
+    overflow: hidden;
+    margin: 0;s
+}
+#content {
+    height: 100%;
+    color: white;
+}
+#left {
+    float: left;
+    width: 15%;
+    background: #1c2025;
+    height: 100%;
+    overflow: auto;
+    box-sizing: border-box;
+    padding: 0.4em;
+}
+#center {
+    float: left;
+    width: 25%;
+    background: black;
+    height: 100%;
+    overflow: auto;
+    box-sizing: border-box;
+    padding: 0.4em;
+}
+#right {
+    float: left;
+    width: 60%;
+    background: gray;
+    height: 100%;
+    overflow: auto;
+    box-sizing: border-box;
+    padding: 0.4em;
+}
+
+.center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 70%;
+  height: 50;
+
+
+
+}
+</style>
+
+<div id="content">
+    <div id="left">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce nec lorem mauris. Nulla fermentum tincidunt nulla et dignissim. In porttitor sem id velit lobortis aliquam. 
+    </div>
+
+    <div id="center">
+        
+        <p>{{ perf }}</p>
+        <p> doggy </p>
+            <img src="{{ url_for('small_plot_NVDA') }}" alt="NVDA" height = 50 class="center">
+            
+         </div>   
+      </div>
+     
+
+
+    <div id="right">
+        <div class = "graphs">
+            <img src="{{ url_for('plot_graph_NVDA') }}" alt="NVDA" height = 150, width = 350>
+            <img src="{{ url_for('plot_graph_MSFT') }}" alt="MSFT" height = 175></div>
+            
+            <div class = "graphs">
+            <img src="{{ url_for('plot_graph_GOOG') }}" alt="GOOG" height = 175>
+            <img src="{{ url_for('plot_graph_AMZN') }}" alt="AMZN" height = 175></div>
+            
+            <div class = "graphs">
+            <img src="{{ url_for('plot_graph_PYPL') }}" alt="PYPL" height = 175>
+            <img src="{{ url_for('plot_graph_CRM') }}" alt="CRM" height = 175></div>
+            
+            <div class = "graphs">
+            <img src="{{ url_for('plot_graph_TWLO') }}" alt="TWLO" height = 175></div>
+      </div>
+
+
+    </body>
+</div>
+</html>
+
+<!-- 
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+* {
+  box-sizing: border-box;
+  
+}
+
+html, body {
+    height:100%
+}
+
+/* Create three equal columns that floats next to each other */
+.column1 {
+  float: left;
+  width: 15%;
+  padding: 10px;
+  height: 300px; 
+  background: red;
+  overflow: auto;
+  box-sizing: border-box;
+  padding: 0.5em;
+}
+.column2 {
+  float: left;
+  width: 25%;
+  padding: 10px;
+  height: 500px; 
+  background: red;
+  overflow: auto;
+  box-sizing: border-box;
+  padding: 0.5em;
+}
+.column3 {
+  float: left;
+  width: 60%;
+  padding: 10px;
+  height: 300px; 
+}
+
+
+/* Clear floats after the columns */
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+  height: 100%
+}
+</style>
+</head>
+<body>
+
+<h2>Three Equal Columns</h2>
+
+
+<div class="row">
+    <div id="content">
+  <div class="column1">
+    <h2>Column 1</h2>
+    <p>Some text..</p>
+  </div></div>
+
+  
+  <div class="column2">
+      
+    <h2>Column 2</h2>
+    <p>Some text..</p>
+    <div class = "graphs">
+        <img src="{{ url_for('plot_graph_NVDA') }}" alt="NVDA" height = 150, width = 350>
+        <img src="{{ url_for('plot_graph_MSFT') }}" alt="MSFT" height = 175></div>
+        
+        <div class = "graphs">
+        <img src="{{ url_for('plot_graph_GOOG') }}" alt="GOOG" height = 175>
+        <img src="{{ url_for('plot_graph_AMZN') }}" alt="AMZN" height = 175></div>
+        
+        <div class = "graphs">
+        <img src="{{ url_for('plot_graph_PYPL') }}" alt="PYPL" height = 175>
+        <img src="{{ url_for('plot_graph_CRM') }}" alt="CRM" height = 175></div>
+        
+        <div class = "graphs">
+        <img src="{{ url_for('plot_graph_TWLO') }}" alt="TWLO" height = 175></div>
+
+  </div>
+  
+
+  <div class="column3" style="background-color:#ccc;">
+    <h2>Column 3</h2>
+    <p>Some text..</p>
+    <div class = "graphs">
+        <img src="{{ url_for('plot_graph_NVDA') }}" alt="NVDA" height = 175>
+        
+
+  </div>
+</div>
+
+</body>
+</html>
+
+-->
