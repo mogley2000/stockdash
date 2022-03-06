@@ -4,17 +4,13 @@ import dash
 import dash_bootstrap_components as dbc
 from dash import html
 from dash import dcc
-import plotly.express as px
 from dash.dependencies import Input, Output
-import pandas as pd
-import yfinance as yf
 
-import page_1
+import page_1, graph
 
 external_stylesheets = [dbc.themes.CYBORG] #DARKLY
 
-app = dash.Dash(__name__, external_stylesheets=external_stylesheets, suppress_callback_exceptions=True)
-
+app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 
 # styling the sidebar
 SIDEBAR_STYLE = {
@@ -57,7 +53,6 @@ SIDEBAR = html.Div(
     style=SIDEBAR_STYLE,
 )
 
-
 CONTENT = html.Div(id="page-content", children=[], style=CONTENT_STYLE)  # Graph goes inside children via call back 
 
 CALLBACK = html.Div([   
@@ -96,8 +91,6 @@ app.layout = html.Div([
 ])
 
 
-
-""" Plotly graph """
 @app.callback(
     Output("page-content", "children"),
     Output("period-selector", "style"),
@@ -121,98 +114,7 @@ def render_page_content(pathname, period_selector):
         return 'Test', hidden_style
     
     else:  # If pathname isn't defined above, assume is stock ticker and calls graph below 
-        interval = '1d'
-
-        quote = yf.Ticker(pathname)
-        hist = quote.history(period_selector, interval)
-        df = hist.round(decimals=2)
-        
-        last_price = df.iloc[-1, 0] # return first row (-1)
-
-        #Performance over period calc
-        performance_calc = ((df.iloc[-1, 0] / df.iloc[0, 0]) - 1) * 100
-        if performance_calc >= 0:
-            performance = '+' + str(round(performance_calc,2))
-        else:
-            performance = str(round(performance_calc,2))
-        
-        #Define color of performance % 
-        performance_int = (round(performance_calc,2))
-        
-        if performance_int >= 0:
-            perf_color = 'lime'
-        else:
-            perf_color = 'red'
-        
-        fig = px.line(df, 
-            x=df.index, y=df["Close"], 
-            title='NVDA',
-            template="plotly_dark",
-            color_discrete_sequence=['lime'],
-            labels = {'Date': ''}
-            )
-        
-        if interval == '1mo':
-            d_tick='604800000'  #7 days in milliseconds. Datetime format requires ms input. 
-        elif interval == '5y':
-            d_tick = 'M12'
-        else:
-            d_tick='M1'
-
-        fig.update_xaxes(
-            dtick=d_tick,
-            showgrid=False,            
-        )
-
-        fig.update_yaxes(
-            showgrid=False,
-            visible=False
-        )
-        #Last price annotation 
-        fig.add_annotation(dict(font=dict(color='white',size=40, family='Arial Black'),
-            x=0,
-            y=1.2,
-            showarrow=False,
-            text=str(last_price),
-            textangle=0,
-            xanchor='left',
-            xref="paper",
-            yref="paper")
-        )
-
-        #Performance annotation 
-        fig.add_annotation(dict(font=dict(color=perf_color,size=25, family='Arial'),
-            x=0.14,
-            y=1.12,
-            showarrow=False,
-            text=str(performance) + '%',
-            textangle=0,
-            xanchor='left',
-            xref="paper",
-            yref="paper")
-        )
-
-        fig.update_traces(hovertemplate=None)
-        
-        fig.update_layout(
-            plot_bgcolor='#060606',
-            paper_bgcolor='#060606',
-            font_color='white',
-            title=dict(   
-                y = 0.82,  #Adjust location of stock ticker title 
-                x = 0.92,
-                xanchor = 'center',
-                yanchor = 'top',
-                font=dict(
-                    family="Arial",
-                    size=25,
-                    color='white'
-                    )
-            ),
-            hovermode = 'x',
-            # xaxis_tickformat = '%b'
-        )
-
+        fig = graph.large_graph(pathname, period_selector)
         # Return below into children tag above 
         return [
                 html.H1(pathname,
