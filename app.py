@@ -6,7 +6,8 @@ from dash import html
 from dash import dcc
 from dash.dependencies import Input, Output
 
-import page_1, graph
+import page_1  # Importing the whole sheet and downloading the df data on app.py startup 
+import graph
 
 external_stylesheets = [dbc.themes.CYBORG] #DARKLY
 
@@ -59,6 +60,7 @@ CALLBACK = html.Div([
                 dcc.RadioItems(
                     id='period-selector',
                     options = [
+                        {'label': '1 day', 'value': '5d'},  # 1d return needs 5d data set to calculate close from day before
                         {'label': '1 mth', 'value': '1mo'},
                         {'label': '3 mth', 'value': '3mo'},
                         {'label': '6 mth', 'value': '6mo'},
@@ -108,7 +110,7 @@ def render_page_content(pathname, period_selector):
     visible_style = {'textAlign': 'center'} 
 
     if pathname == '/':
-        return page_1.layout, hidden_style
+        return page_1.main(), hidden_style  # first return maps to Output("Page-content"), hidden_style to ("period-selector")
     
     if pathname == '/test':
         return 'Test', hidden_style

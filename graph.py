@@ -9,10 +9,14 @@ def large_graph(pathname, period_selector):
     hist = quote.history(period_selector, interval)
     df = hist.round(decimals=2)
     
-    last_price = df.iloc[-1, 0] # return first row (-1)
+    last_price = df.iloc[-1, 3] # return first row (-1)
 
     #Performance over period calc
-    performance_calc = ((df.iloc[-1, 0] / df.iloc[0, 0]) - 1) * 100
+    if period_selector == '5d':
+        performance_calc = ((df.iloc[-1, 3] / df.iloc[-2, 3] - 1)) * 100 
+    else:
+        performance_calc = ((df.iloc[-1, 3] / df.iloc[0, 3]) - 1) * 100
+    
     if performance_calc >= 0:
         performance = '+' + str(round(performance_calc,2))
     else:
@@ -125,12 +129,12 @@ def sparkline_graph(pathname, period_selector):
     
     fig = px.line(df, 
         x=df.index, y=df["Close"], 
-        title='NVDA',
+        title=pathname,
         template="plotly_dark",
         color_discrete_sequence=[perf_color],
         labels = {'Date': ''},
-        height=200,
-        width=400
+        height=75,
+        width=200
         )
     
     if interval == '1mo':
