@@ -1,5 +1,12 @@
 import yfinance as yf
 import plotly.express as px
+import pandas as pd 
+
+
+""" Setup list of cols for .info attribute"""
+INFO_COLS = ['currentPrice','market', '52WeekChange', 'totalRevenue', 'threeYearAverageReturn', 'ebitda', 'freeCashflow', 'revenueGrowth', 'grossMargins', 'ebitdaMargins', 
+'debtToEquity', 'returnOnEquity', 'enterpriseToEbitda', 'forwardPE', 'priceToSalesTrailing12Months'
+]
 
 def large_graph(pathname, period_selector):
     """ Main plotly graph  """
@@ -170,3 +177,14 @@ def sparkline_graph(pathname, period_selector):
         )
 
     return fig 
+
+
+def info(ticker):
+    """ return df with selected cols from .info attribute  """
+    quote = yf.Ticker(ticker)
+    info = quote.info
+    df = pd.DataFrame([info])
+    df_cleaned = df[INFO_COLS]
+
+    return df_cleaned
+ 

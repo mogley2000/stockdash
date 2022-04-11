@@ -14,14 +14,15 @@ logging.basicConfig(level=logging.DEBUG, format=' %(asctime)s - %(levelname)s- %
 
 TICKERS = [
     'NVDA', 'MSFT','TWLO','NET','U','SQ','RTX','PYPL','SDGR','PLTR',
-    'ETSY','GOOG','DIS','CRM','AMZN','TSM','LRCX','SWKS','ABB.AX'
+    'ETSY','GOOG','DIS','CRM','AMZN','TSM','LRCX','SWKS'
 ]
 
-# TICKERS = [
-#     'NVDA', 'MSFT','TWLO','NET','U','SQ','RTX','PYPL','SDGR','PLTR','ETSY','GOOG','DIS','CRM',
-#     'AMZN', 'TSM','LRCX','SWKS','ABB.AX','VGL.AX','EXP.AX','EML.AX','SHL.AX','CKF.AX','ALL.AX',
-#     'REA.AX','HMD.AX','AD8.AX','XRO.AX', 'PDN.AX'  
-# ]
+TICKERS_AU = [
+   'ABB.AX','VGL.AX','EXP.AX','EML.AX','SHL.AX','CKF.AX','ALL.AX','REA.AX','HMD.AX','AD8.AX',
+   'XRO.AX', 'PDN.AX'  
+]
+
+
 
 # ----- OLD gain_loss func which called yf everytime ------------------
 # def gain_loss(ticker, period, interval):
@@ -42,28 +43,27 @@ def gain_loss(data_set, ticker, period):
     """ Calc gain loss """
     close = data_set[ticker]['Close']
     
-    if period == '1d':
+    if period == '5d':  # '5d' period dataset for 1d gain_loss 
         first_close = close.iloc[-2]
     else:
         first_close = close.iloc[0]
     
     latest_close = close.iloc[-1]
 
-    gain_loss = latest_close / first_close - 1
+    gain_loss = (latest_close / first_close) - 1
     
     return gain_loss
 
 
-def fifty_two_wk_high(ticker):
+def fifty_two_wk_high(data_set, ticker):
     """ Gets 52-week high and calc percentage var """
-    quote = yf.Ticker(ticker)
-    fifty_two_high = quote.info['fiftyTwoWeekHigh']
-    today_data = quote.history(period='1d')
-    close_price = today_data['Close'][0]
+    fifty_two_high = data_set[ticker]['Close'].max()
+    close_price = data_set[ticker]['Close'].iloc[-1]
     
     var = (close_price / fifty_two_high) - 1
 
     return var
+
 
 # Variables for main() but not to be re-run everytime the main() code is pulled when clicking route 
 run_counter = 0  # Counter to prevent data from pulling again if >= 1
@@ -83,24 +83,46 @@ def main():
     global fifty_two_wk_high_list
 
     if run_counter == 0:  # Don't run if alraedy run once to prevent re-downloading data 
+        run_counter += 1
         
         # Download the data sets if running for first time
+        # AU data_set needs to be downlaoded separately due to time difference and mixing AU tickers returns a NaN in US date
+        # i.e. 6th April is NaN for US tickers when AU is 6th April
         download_5d = yf.download(TICKERS, period='5d', interval='1d', group_by='ticker', threads=True)
+        download_5d_AU = yf.download(TICKERS_AU, period='5d', interval='1d', group_by='ticker', threads=True)
+        
+        # logging.debug('PRINT download_5d')
+        # logging.debug(download_5d)
         download_3mo = yf.download(TICKERS, period='3mo', interval='1d', group_by='ticker', threads=True)
+        download_3mo_AU = yf.download(TICKERS_AU, period='3mo', interval='1d', group_by='ticker', threads=True)
+        download_52high = yf.download(TICKERS, period="1y", interval='1d', group_by='ticker', threads=True)
+        download_52high_AU = yf.download(TICKERS_AU, period="1y", interval='1d', group_by='ticker', threads=True)
+
 
         for ticker in TICKERS:
-            if gain_loss(download_5d, ticker, '1d') < 0:
-                losers_1d.append([ticker, gain_loss(download_5d, ticker, '1d')])
+            if gain_loss(download_5d, ticker, '5d') < 0:
+                losers_1d.append([ticker, gain_loss(download_5d, ticker, '5d')])
             if gain_loss(download_3mo, ticker, '3mo') < 0:
                 losers_3mo.append([ticker, gain_loss(download_3mo, ticker, '3mo')])
-            if gain_loss(download_5d, ticker, '1d') >= 0:
-                winners_1d.append([ticker, gain_loss(download_5d, ticker, '1d')])
+            if gain_loss(download_5d, ticker, '5d') >= 0:
+                winners_1d.append([ticker, gain_loss(download_5d, ticker, '5d')])
             if gain_loss(download_3mo, ticker, '3mo') >= 0:
                 winners_3mo.append([ticker, gain_loss(download_3mo, ticker, '3mo')])   
             
-            # fifty_two_wk_high_list.append([ticker, fifty_two_wk_high(ticker)])
+            fifty_two_wk_high_list.append([ticker, fifty_two_wk_high(download_52high, ticker)])
 
-            run_counter += 1
+        for ticker in TICKERS_AU:  
+            if gain_loss(download_5d_AU, ticker, '5d') < 0:
+                losers_1d.append([ticker, gain_loss(download_5d_AU, ticker, '5d')])
+            if gain_loss(download_3mo_AU, ticker, '3mo') < 0:
+                losers_3mo.append([ticker, gain_loss(download_3mo_AU, ticker, '3mo')])
+            if gain_loss(download_5d_AU, ticker, '5d') >= 0:
+                winners_1d.append([ticker, gain_loss(download_5d_AU, ticker, '5d')])
+            if gain_loss(download_3mo_AU, ticker, '3mo') >= 0:
+                winners_3mo.append([ticker, gain_loss(download_3mo_AU, ticker, '3mo')])   
+            
+            fifty_two_wk_high_list.append([ticker, fifty_two_wk_high(download_52high_AU, ticker)])
+
 
     losers_1d.sort(key=lambda x: x[1])  # Can also define a def custom_sort() that returns x[1] and use key=custom_sort
     losers_3mo.sort(key=lambda x: x[1])  # Can also define a def custom_sort() that returns x[1] and use key=custom_sort
@@ -108,7 +130,7 @@ def main():
     winners_1d.sort(key=lambda x: x[1], reverse=True)  
     winners_3mo.sort(key=lambda x: x[1], reverse=True)  
 
-    # fifty_two_wk_high_list.sort(key=lambda x: x[1])
+    fifty_two_wk_high_list.sort(key=lambda x: x[1])
 
     # logging.debug(losers_1d)
 
@@ -127,7 +149,7 @@ def main():
     # logging.debug("PRINING losers_3mo_df")
     # logging.debug(losers_3mo_df)
 
-    # fifty_two_wk_high_list_df = pd.DataFrame(fifty_two_wk_high_list, columns=['Ticker', 'Return'])
+    fifty_two_wk_high_list_df = pd.DataFrame(fifty_two_wk_high_list, columns=['Ticker', 'Return'])
 
 
     """ Generate sparkline graph for each ticker in winner, loser list """
@@ -326,20 +348,20 @@ def main():
                         )
                     ]),
 
-                    # dbc.Col(children=[
-                    #     html.Div("52-wk high"),
+                    dbc.Col(children=[
+                        html.Div("52-wk high"),
                         
-                    #     dash_table.DataTable(
-                    #         fifty_two_wk_high_list_df.to_dict('records'), 
-                    #         d_columns,
-                    #         style_cell=style_cell,
-                    #         style_data_conditional=style_data_conditional_red,
-                    #         style_header=style_header,
-                    #         style_data=style_data,
-                    #         style_as_list_view=True,
-                    #         style_table=style_table
-                    #     )
-                    # ])
+                        dash_table.DataTable(
+                            fifty_two_wk_high_list_df.to_dict('records'), 
+                            d_columns,
+                            style_cell=style_cell,
+                            style_data_conditional=style_data_conditional_red,
+                            style_header=style_header,
+                            style_data=style_data,
+                            style_as_list_view=True,
+                            style_table=style_table
+                        )
+                    ])
                     
                 ]
             )

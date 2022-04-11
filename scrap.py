@@ -1,12 +1,17 @@
 import yfinance as yf
+import pandas as pd 
 
-from page_1 import TICKERS
 
+msft = yf.Ticker('MSFT')
+info = msft.info
+# news = msft.news
+# calendar = msft.calendar
 
-# msft = yf.Ticker('MSFT')
-# history = msft.history()
-# info = msft.info
-# 
+# print(info)
+# print(news)
+# print(calendar)
+
+print(info)
 
 TICKERS = ['NVDA', 'MSFT', 'GOOG', 'TWLO', 'NET']
 
@@ -15,10 +20,10 @@ TICKERS = ['NVDA', 'MSFT', 'GOOG', 'TWLO', 'NET']
 # gain = close.iloc[0]
 # last = close.iloc[-1]
 
-download_1d = yf.download(TICKERS, period='1d', interval='1d', group_by='ticker', threads=True)
-download_5d = yf.download(TICKERS, period='5d', interval='1d', group_by='ticker', threads=True)
-download_3mo = yf.download(TICKERS, period='3mo', interval='1d', group_by='ticker', threads=True)
-download_6mo = yf.download(TICKERS, period='6mo', interval='1d', group_by='ticker', threads=True)
+# download_1d = yf.download(TICKERS, period='1d', interval='1d', group_by='ticker', threads=True)
+# download_5d = yf.download(TICKERS, period='5d', interval='1d', group_by='ticker', threads=True)
+# download_3mo = yf.download(TICKERS, period='3mo', interval='1d', group_by='ticker', threads=True)
+# download_6mo = yf.download(TICKERS, period='6mo', interval='1d', group_by='ticker', threads=True)
 
 
 
@@ -44,11 +49,11 @@ def gain_loss(data_set, ticker, period):
 # print(download_1d['NVDA'])
 # print(gain_loss(download_1d, 'NVDA', '1d'))
 
-data = download_3mo['NVDA']
-print(data)
-print(gain_loss(download_3mo, 'NVDA', '3mo'))
+# data = download_3mo['NVDA']
+# print(data)
+# print(gain_loss(download_3mo, 'NVDA', '3mo'))
 
-for ticker in TICKERS:
-    print(gain_loss(download_3mo, ticker, '3mo'))
+# for ticker in TICKERS:
+#     print(gain_loss(download_3mo, ticker, '3mo'))
 
 

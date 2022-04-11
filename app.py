@@ -2,9 +2,10 @@
 
 import dash
 import dash_bootstrap_components as dbc
-from dash import html
-from dash import dcc
+from dash import html, dcc, dash_table
 from dash.dependencies import Input, Output
+import pandas as pd 
+
 
 import page_1  # Importing the whole sheet and downloading the df data on app.py startup 
 import graph
@@ -117,14 +118,39 @@ def render_page_content(pathname, period_selector):
     
     else:  # If pathname isn't defined above, assume is stock ticker and calls graph below 
         fig = graph.large_graph(pathname, period_selector)
+        info_table = graph.info(pathname)
         # Return below into children tag above 
-        return [
+        return  [
+                html.Div([
                 html.H1(pathname,
                         style={'textAlign':'center'}),
                 dcc.Graph(id='stock-chart',
                     figure = fig
                     )
-                ], visible_style
+                ]),
+                html.Div([
+                    dbc.Row(
+                        [
+                            # Col for .info table
+                        dbc.Col(children=[
+                            html.Div("info table"),
+                            
+                            dash_table.DataTable(
+                                info_table.to_dict('records') 
+                                # d_columns,
+                                # style_cell=style_cell,
+                                # style_data_conditional=style_data_conditional_green,
+                                # style_header=style_header,
+                                # style_data=style_data,
+                                # style_as_list_view=True,
+                                # style_table=style_table
+                            )
+                        ])
+                    ])
+                ])
+        ], visible_style
 
 if __name__=='__main__':
     app.run_server(debug=True, port=3000)
+
+
