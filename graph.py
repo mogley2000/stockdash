@@ -1,6 +1,7 @@
 import yfinance as yf
 import plotly.express as px
 import pandas as pd 
+import pickle 
 
 
 """ Setup list of cols for .info attribute"""
@@ -181,10 +182,24 @@ def sparkline_graph(pathname, period_selector):
 
 def info(ticker):
     """ return df with selected cols from .info attribute  """
-    quote = yf.Ticker(ticker)
-    info = quote.info
-    df = pd.DataFrame([info])
-    df_cleaned = df[INFO_COLS]
+    ticker_cleaned = ticker[1:]
+    print(ticker_cleaned)
 
-    return df_cleaned
+    try:
+        with open(ticker_cleaned + '.p', 'rb') as pfile:
+            df_cleaned = pickle.load(pfile)
+            print("Pickle found!")
+            return df_cleaned
+    except (OSError, IOError):
+        quote = yf.Ticker(ticker)
+        info = quote.info
+        df = pd.DataFrame([info])
+        df_cleaned = df[INFO_COLS]
+
+        with open(ticker_cleaned + '.p', 'wb') as pfile:
+            pickle.dump(df_cleaned, pfile)
+        
+        return df_cleaned
+        
+   
  
